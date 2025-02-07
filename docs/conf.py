@@ -9,7 +9,10 @@
 import os
 import sys
 
+# Add the project root directory to sys.path so that Sphinx can import your package.
 sys.path.insert(0, os.path.abspath(".."))
+
+# -- Project information -----------------------------------------------------
 
 project = "loadcfg"
 copyright = "2025, Daniel Korkin"
@@ -17,7 +20,6 @@ author = "Daniel Korkin"
 release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     "sphinx.ext.autodoc",  # Automatically document modules and members.
@@ -36,16 +38,15 @@ autosummary_generate = True
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 
+# Intersphinx mapping to the Python standard library documentation.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
-
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
