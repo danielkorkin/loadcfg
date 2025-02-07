@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-          # Fetch full git history for Codecov to calculate accurate diff and commit details.
+          # Fetch full git history so Codecov can get accurate diff and commit details.
         fetch-depth: 0
 
     - name: Set up Python
@@ -27,12 +27,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
-        pip install .
+        # Install in editable mode so that coverage maps to your repo files
+        pip install -e .
 
     - name: Run tests with coverage
       run: |
-        # Run tests with branch coverage and output an XML report for Codecov.
-        pytest --maxfail=1 --disable-warnings -q --cov=loadcfg --cov-branch --cov-report=xml
+        # Run tests with branch coverage and output an XML report (coverage.xml)
+        pytest --maxfail=1 --disable-warnings --cov=loadcfg --cov-branch --cov-report=xml
+
+    - name: List coverage report file
+      run: ls -la
 
     - name: Upload coverage to Codecov
       if: always()
