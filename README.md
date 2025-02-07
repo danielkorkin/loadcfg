@@ -1,12 +1,12 @@
 # loadcfg
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/danielkorkin/loadcfg/test.yml?label=testing)
-[![PyPI - Version](https://img.shields.io/pypi/v/loadcfg)](https://pypi.org/project/loadcfg)  
-[![Codecov](https://img.shields.io/codecov/c/github/danielkorkin/loadcfg)](https://app.codecov.io/gh/danielkorkin/loadcfg/)  
-[![Read the Docs](https://img.shields.io/readthedocs/loadcfg)](https://loadcfg.readthedocs.io)  
-[![PyPI - License](https://img.shields.io/pypi/l/loadcfg)](https://pypi.org/project/loadcfg)  
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/loadcfg)](https://pypi.org/project/loadcfg)  
-[![GitHub last commit](https://img.shields.io/github/last-commit/danielkorkin/loadcfg)](https://github.com/danielkorkin/loadcfg)
+![PyPI - Version](https://img.shields.io/pypi/v/loadcfg)
+![Codecov](https://img.shields.io/codecov/c/github/danielkorkin/loadcfg)
+![Read the Docs](https://img.shields.io/readthedocs/loadcfg)
+![PyPI - License](https://img.shields.io/pypi/l/loadcfg)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/loadcfg)
+![GitHub last commit](https://img.shields.io/github/last-commit/danielkorkin/loadcfg)
 
 **loadcfg** is a lightweight Python library that makes it easy to load configuration files in JSON and YAML formats with convenient dot-access to configuration values.
 
