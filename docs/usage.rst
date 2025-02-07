@@ -1,7 +1,7 @@
 Usage Example
 =============
 
-This guide demonstrates how to use **loadcfg** to load, validate, and generate configuration files in various formats.
+This guide demonstrates how to use **loadcfg** to load, validate, and generate configuration files in various formats—and how to save the generated configuration to a file.
 
 Installation
 ------------
@@ -94,28 +94,29 @@ Alternatively, invoke validation directly on the configuration object:
 
     config.validate(ProgramConfig)
 
-Generating Example Configurations
------------------------------------
+Generating and Saving Example Configurations
+----------------------------------------------
 
-Generate example configuration files in various formats:
+You can generate example configuration files in various formats and save them directly to a file.
 
 .. code-block:: python
 
-    # Generate JSON
+    # Generate a JSON example configuration and print it.
     example_json = ProgramConfig.generate(fmt="json")
     print(example_json)
+    # Save the generated configuration to "test.json".
+    example_json.save("test.json")
+    # If no filename is provided, the default will be "config.<fmt>" (e.g. "config.json").
 
-    # Generate YAML
+    # Similarly, generate and save YAML, TOML, or INI formats:
     example_yaml = ProgramConfig.generate(fmt="yaml")
-    print(example_yaml)
+    example_yaml.save("test.yaml")
 
-    # Generate TOML
     example_toml = ProgramConfig.generate(fmt="toml")
-    print(example_toml)
+    example_toml.save("test.toml")
 
-    # Generate INI
     example_ini = ProgramConfig.generate(fmt="ini")
-    print(example_ini)
+    example_ini.save("test.ini")
 
 Testing and Contributing
 ------------------------

@@ -1,5 +1,6 @@
 import configparser
 import json
+import os
 
 import pytest
 import toml
@@ -205,7 +206,7 @@ def test_template_nested_validate_failure():
 
 def test_template_generate_json():
     generated = DummyTemplate.generate(fmt="json")
-    data = json.loads(generated)
+    data = json.loads(str(generated))
     assert "name" in data
     assert "age" in data
     assert data["name"] == "example"
@@ -214,7 +215,7 @@ def test_template_generate_json():
 
 def test_template_generate_yaml():
     generated = DummyTemplate.generate(fmt="yaml")
-    data = yaml.safe_load(generated)
+    data = yaml.safe_load(str(generated))
     assert "name" in data
     assert "age" in data
     assert data["name"] == "example"
@@ -223,7 +224,7 @@ def test_template_generate_yaml():
 
 def test_template_generate_toml():
     generated = DummyTemplate.generate(fmt="toml")
-    data = toml.loads(generated)
+    data = toml.loads(str(generated))
     assert "name" in data
     assert "age" in data
     assert data["name"] == "example"
@@ -233,7 +234,7 @@ def test_template_generate_toml():
 def test_template_generate_ini():
     generated = DummyTemplate.generate(fmt="ini")
     parser = configparser.ConfigParser()
-    parser.read_string(generated)
+    parser.read_string(str(generated))
     default_values = list(parser["DEFAULT"].values())
     assert "example" in default_values or "0" in default_values
 
@@ -259,7 +260,7 @@ def test_template_with_attributes():
     config = Config(data)
     AttrTemplate.validate(config)
     generated = AttrTemplate.generate(fmt="json")
-    data_generated = json.loads(generated)
+    data_generated = json.loads(str(generated))
     assert data_generated["name"] == "example"
     assert data_generated["age"] == 0
 
@@ -280,7 +281,7 @@ class AllTypesTemplate(Template):
 
 def test_all_types_template_generate():
     generated = AllTypesTemplate.generate(fmt="json")
-    data = json.loads(generated)
+    data = json.loads(str(generated))
     assert data["int_field"] == 0
     assert data["float_field"] == 0.0
     assert data["str_field"] == "example"
@@ -288,3 +289,43 @@ def test_all_types_template_generate():
     assert data["list_field"] == []
     assert data["dict_field"] == {}
     assert data["unknown_field"] is None
+
+
+# === Tests for GeneratedConfig .save() feature ===
+
+import os
+
+
+@pytest.mark.parametrize(
+    "fmt,ext",
+    [
+        ("json", "json"),
+        ("yaml", "yaml"),
+        ("toml", "toml"),
+        ("ini", "ini"),
+    ],
+)
+def test_generated_config_save(tmp_path, fmt, ext):
+    generated = DummyTemplate.generate(fmt=fmt)
+    filename = tmp_path / f"output.{ext}"
+    returned_filename = generated.save(str(filename))
+    assert os.path.basename(returned_filename) == f"output.{ext}"
+    assert os.path.isfile(returned_filename)
+    with open(returned_filename, "r", encoding="utf-8") as f:
+        saved_content = f.read()
+    assert saved_content == str(generated)
+
+
+def test_generated_config_save_default_filename(tmp_path):
+    generated = DummyTemplate.generate(fmt="json")
+    old_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        returned_filename = generated.save()  # No filename provided.
+        assert returned_filename == "config.json"
+        assert os.path.isfile("config.json")
+        with open("config.json", "r", encoding="utf-8") as f:
+            content = f.read()
+        assert content == str(generated)
+    finally:
+        os.chdir(old_cwd)
