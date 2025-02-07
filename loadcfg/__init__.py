@@ -272,17 +272,17 @@ def _get_example_value(expected_type):
     Returns:
         An example value corresponding to the type.
     """
-    if expected_type == int:
+    if expected_type is int:
         return 0
-    elif expected_type == float:
+    elif expected_type is float:
         return 0.0
-    elif expected_type == str:
+    elif expected_type is str:
         return "example"
-    elif expected_type == bool:
+    elif expected_type is bool:
         return False
-    elif expected_type == list:
+    elif expected_type is list:
         return []
-    elif expected_type == dict:
+    elif expected_type is dict:
         return {}
     else:
         return None
