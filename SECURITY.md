@@ -6,11 +6,11 @@ This document describes the security policy for **loadcfg**. We take security se
 
 ## Supported Versions
 
-At this time, the only version of **loadcfg** is **v0.1.0** and it is actively maintained for security updates.
+At this time, the version of **loadcfg** is **v0.1.1** and it is actively maintained for security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| v0.1.0  | :white_check_mark: |
+| v0.1.1  | :white_check_mark: |
 
 ---
 
