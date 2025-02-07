@@ -6,8 +6,15 @@ import pytest
 import toml
 import yaml
 
-from loadcfg import (Config, ConfigValidationError, LoadIni, LoadJson,
-                     LoadToml, LoadYaml, Template)
+from loadcfg import (
+    Config,
+    ConfigValidationError,
+    LoadIni,
+    LoadJson,
+    LoadToml,
+    LoadYaml,
+    Template,
+)
 
 # === Tests for Config class ===
 
@@ -85,6 +92,7 @@ def test_load_yaml_valid(tmp_path):
 
 def test_load_yaml_invalid_structure(tmp_path):
     file_path = tmp_path / "bad.yaml"
+    # Write a YAML string that represents a list instead of a dict.
     file_path.write_text(yaml.dump([1, 2, 3]), encoding="utf-8")
     with pytest.raises(ValueError):
         _ = LoadYaml(str(file_path))
@@ -110,12 +118,20 @@ def test_load_toml_valid(tmp_path):
 
 
 def test_load_toml_invalid_structure(tmp_path):
-    """Test that a TOML file with a top-level array raises ValueError."""
+    """
+    Test that a TOML file with a top-level array or literal (e.g. "1")
+    raises ValueError.
+    """
     file_path = tmp_path / "bad.toml"
-    # A top-level array; toml.loads should return a list.
-    file_path.write_text("[1, 2, 3]", encoding="utf-8")
-    with pytest.raises(ValueError):
+    # Instead of relying on a TOML parse error, we force toml.load to return a list.
+    file_path.write_text("dummy", encoding="utf-8")  # The file content is irrelevant.
+    # Monkey-patch toml.load to simulate a top-level non-dict result.
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(toml, "load", lambda f: [1, 2, 3])
+    with pytest.raises(ValueError) as exc_info:
         _ = LoadToml(str(file_path))
+    assert "TOML file must contain a top-level table" in str(exc_info.value)
+    monkeypatch.undo()
 
 
 def test_load_toml_file_not_found(tmp_path):
@@ -139,8 +155,10 @@ key = subvalue
     file_path = tmp_path / "config.ini"
     file_path.write_text(ini_content, encoding="utf-8")
     config = LoadIni(str(file_path))
+    # DEFAULT values should be merged.
     assert config.name == "IniTest"
     assert config.value == "321"  # INI files store values as strings.
+    # Verify that section data was parsed.
     assert "section" in config
     assert config.section["key"] == "subvalue"
 
@@ -149,6 +167,46 @@ def test_load_ini_file_not_found(tmp_path):
     file_path = tmp_path / "nonexistent.ini"
     with pytest.raises(FileNotFoundError):
         _ = LoadIni(str(file_path))
+
+
+# === Additional tests for internal _dict_to_ini functionality ===
+
+
+def test_dict_to_ini_nested_section(tmp_path):
+    # Import the internal helper for testing.
+    from loadcfg import _dict_to_ini
+
+    data = {"foo": "bar", "section": {"key": "value"}}
+    ini_str = _dict_to_ini(data)
+    # Check that a DEFAULT section is present with foo=bar.
+    assert "DEFAULT" in ini_str
+    assert "foo = bar" in ini_str
+    # Check that the nested section is created.
+    assert "[section]" in ini_str
+    assert "key = value" in ini_str
+
+
+def test_dict_to_ini_default_section(tmp_path):
+    from loadcfg import _dict_to_ini
+
+    data = {"foo": "bar"}
+    ini_str = _dict_to_ini(data)
+    # Verify that a DEFAULT section is added.
+    assert "[DEFAULT]" in ini_str
+    assert "foo = bar" in ini_str
+
+
+def test_dict_to_ini_mixed_sections(tmp_path):
+    from loadcfg import _dict_to_ini
+
+    data = {"key1": "value1", "section1": {"subkey": "subvalue"}}
+    ini_str = _dict_to_ini(data)
+    # Check that "key1" is in the DEFAULT section.
+    assert "[DEFAULT]" in ini_str
+    assert "key1 = value1" in ini_str
+    # Check that the nested section appears.
+    assert "[section1]" in ini_str
+    assert "subkey = subvalue" in ini_str
 
 
 # === Tests for Template functionality ===
@@ -293,8 +351,6 @@ def test_all_types_template_generate():
 
 # === Tests for GeneratedConfig .save() feature ===
 
-import os
-
 
 @pytest.mark.parametrize(
     "fmt,ext",
@@ -329,3 +385,16 @@ def test_generated_config_save_default_filename(tmp_path):
         assert content == str(generated)
     finally:
         os.chdir(old_cwd)
+
+
+# === Extra test to cover the branch when toml.load returns a non-dict ===
+
+
+def test_load_toml_returns_non_dict(monkeypatch, tmp_path):
+    file_path = tmp_path / "fake.toml"
+    file_path.write_text("dummy", encoding="utf-8")
+    # Monkey-patch toml.load to return a list instead of a dict.
+    monkeypatch.setattr(toml, "load", lambda f: [1, 2, 3])
+    with pytest.raises(ValueError) as exc_info:
+        _ = LoadToml(str(file_path))
+    assert "TOML file must contain a top-level table" in str(exc_info.value)
