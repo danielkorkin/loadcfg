@@ -1,16 +1,9 @@
 import json
-import os
 
 import pytest
 import yaml
 
-from loadcfg import (
-    Config,
-    ConfigValidationError,
-    LoadJson,
-    LoadYaml,
-    Template,
-)
+from loadcfg import Config, ConfigValidationError, LoadJson, LoadYaml, Template
 
 # === Tests for Config class ===
 

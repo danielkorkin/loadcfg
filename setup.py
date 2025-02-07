@@ -9,9 +9,7 @@ try:
     with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
 except FileNotFoundError:
-    long_description = (
-        "loadcfg: A configuration helper library for JSON and YAML config files."
-    )
+    long_description = "loadcfg: A configuration helper library for JSON and YAML config files."
 
 setup(
     name="loadcfg",
@@ -26,6 +24,17 @@ setup(
     install_requires=[
         "PyYAML>=5.1",  # Required for YAML file support.
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "pre-commit",
+            "black",
+            "isort",
+            "ruff",
+            "yamllint",
+            "markdownlint-cli",
+        ]
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

@@ -184,9 +184,7 @@ class Template:
             cls._fields = cls.__annotations__
         else:
             cls._fields = {
-                k: type(v)
-                for k, v in cls.__dict__.items()
-                if not k.startswith("_") and not callable(v)
+                k: type(v) for k, v in cls.__dict__.items() if not k.startswith("_") and not callable(v)
             }
 
     @classmethod

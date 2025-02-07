@@ -1,0 +1,7 @@
+pytest
+pre-commit
+black
+isort
+ruff
+yamllint
+markdownlint-cli
