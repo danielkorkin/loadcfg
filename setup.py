@@ -32,7 +32,6 @@ setup(
             "isort",
             "ruff",
             "yamllint",
-            "markdownlint-cli",
             "pytest-cov",
             "codecov",
         ]
