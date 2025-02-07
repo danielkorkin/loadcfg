@@ -21,6 +21,7 @@ release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
 
+# In docs/conf.py, near the list of extensions:
 extensions = [
     "sphinx.ext.autodoc",  # Automatically document modules and members.
     "sphinx.ext.napoleon",  # Support for Google and NumPy style docstrings.
@@ -30,6 +31,15 @@ extensions = [
     "sphinx_copybutton",  # Add a "copy" button to code blocks.
     "sphinx_autodoc_typehints",  # Automatically include type hints in documentation.
 ]
+
+# Add these two settings:
+autosummary_generate = True  # Auto-generate autosummary pages.
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "private-members": False,
+    "show-inheritance": True,
+}
 
 # Intersphinx mapping to the Python standard library documentation.
 intersphinx_mapping = {
