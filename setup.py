@@ -33,6 +33,8 @@ setup(
             "ruff",
             "yamllint",
             "markdownlint-cli",
+            "pytest-cov",
+            "codecov",
         ]
     },
     classifiers=[
