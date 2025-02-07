@@ -13,7 +13,7 @@ except FileNotFoundError:
 
 setup(
     name="loadcfg",
-    version="0.1.0",
+    version="0.1.1",
     description="A configuration helper library for JSON and YAML config files with dot-access.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -29,6 +29,7 @@ setup(
     packages=find_packages(),  # Automatically find packages in the directory.
     install_requires=[
         "PyYAML>=5.1",  # Required for YAML file support.
+        "toml>=0.10.2",
     ],
     extras_require={
         "dev": [

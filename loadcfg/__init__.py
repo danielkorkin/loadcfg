@@ -1,17 +1,29 @@
 """
 loadcfg: A configuration helper library.
 
-This library provides functions to load configuration files in JSON or YAML format
-into a configuration object that supports attribute (dot) access. It also supplies a
-base Template class to create configuration schemas, validate loaded configurations,
-and generate example configuration files.
+This library provides functions to load configuration files in JSON, YAML, TOML,
+and INI formats into a configuration object that supports attribute (dot) access.
+It also supplies a base Template class to create configuration schemas,
+validate loaded configurations, and generate example configuration files.
 """
 
+import configparser
 import json
+from io import StringIO
 
+import toml
 import yaml
 
-__all__ = ["Config", "LoadJson", "LoadYaml", "Template", "ConfigValidationError"]
+__all__ = [
+    "Config",
+    "LoadJson",
+    "LoadYaml",
+    "LoadToml",
+    "LoadIni",
+    "Template",
+    "ConfigValidationError",
+    "GeneratedConfig",
+]
 
 
 class Config(dict):
@@ -136,6 +148,54 @@ def LoadYaml(file_path: str) -> Config:
     return Config(data)
 
 
+def LoadToml(file_path: str) -> Config:
+    """Load a TOML configuration file and return a Config object.
+
+    Args:
+        file_path (str): Path to the TOML file.
+
+    Returns:
+        Config: The loaded configuration as a Config object.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        toml.TomlDecodeError: If the file is not valid TOML.
+        ValueError: If the TOML file does not contain a top-level table.
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = toml.load(f)
+    if not isinstance(data, dict):
+        raise ValueError("TOML file must contain a top-level table")
+    return Config(data)
+
+
+def LoadIni(file_path: str) -> Config:
+    """Load an INI configuration file and return a Config object.
+
+    Args:
+        file_path (str): Path to the INI file.
+
+    Returns:
+        Config: The loaded configuration as a Config object.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        configparser.Error: If the file is not a valid INI file.
+    """
+    parser = configparser.ConfigParser()
+    files_read = parser.read(file_path, encoding="utf-8")
+    if not files_read:
+        raise FileNotFoundError(f"{file_path} does not exist")
+    data = {}
+    # Process each section into a nested dictionary.
+    for section in parser.sections():
+        data[section] = dict(parser.items(section))
+    # Merge the DEFAULT values into the top-level dictionary.
+    if parser.defaults():
+        data.update(parser.defaults())
+    return Config(data)
+
+
 class ConfigValidationError(Exception):
     """Exception raised for errors in configuration validation.
 
@@ -153,6 +213,63 @@ class ConfigValidationError(Exception):
         self.message = message
 
 
+def _dict_to_ini(data: dict) -> str:
+    """Convert a dictionary into an INI-formatted string.
+
+    Args:
+        data (dict): The dictionary to convert.
+
+    Returns:
+        str: The resulting INI-formatted string.
+    """
+    config = configparser.ConfigParser()
+    default_section = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            # Each nested dictionary becomes its own section.
+            config[key] = {subkey: str(subvalue) for subkey, subvalue in value.items()}
+        else:
+            default_section[key] = str(value)
+    if default_section:
+        config["DEFAULT"] = default_section
+    with StringIO() as stream:
+        config.write(stream)
+        return stream.getvalue()
+
+
+class GeneratedConfig:
+    """Wrapper for generated configuration content that adds a .save() method.
+
+    Attributes:
+        content (str): The generated configuration string.
+        fmt (str): The format of the configuration ('json', 'yaml', 'toml', or 'ini').
+    """
+
+    def __init__(self, content: str, fmt: str):
+        self.content = content
+        self.fmt = fmt.lower()
+
+    def __str__(self):
+        return self.content
+
+    def save(self, filename: str = None) -> str:
+        """Save the generated configuration to a file.
+
+        If no filename is provided, a default filename of `config.<fmt>` is used.
+
+        Args:
+            filename (str, optional): The file name to save the configuration. Defaults to None.
+
+        Returns:
+            str: The filename where the configuration was saved.
+        """
+        if filename is None:
+            filename = f"config.{self.fmt}"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(self.content)
+        return filename
+
+
 class Template:
     """Base class for configuration templates.
 
@@ -168,9 +285,10 @@ class Template:
         config = LoadYaml("config.yaml")
         ProgramConfig.validate(config)
 
-        # Generate an example configuration (JSON format by default):
+        # Generate an example configuration (JSON format by default) and save it:
         example_config = ProgramConfig.generate(fmt="json")
-        print(example_config)
+        print(example_config)             # Prints the configuration as a string.
+        example_config.save("test.json")   # Saves to test.json (or default "config.json").
     """
 
     def __init_subclass__(cls):
@@ -206,7 +324,6 @@ class Template:
             if not hasattr(config, field):
                 raise ConfigValidationError(f"Missing required field: '{field}'")
             value = getattr(config, field)
-            # Check for nested Template types.
             if isinstance(expected_type, type) and issubclass(expected_type, Template):
                 try:
                     expected_type.validate(value)
@@ -220,7 +337,7 @@ class Template:
                     )
 
     @classmethod
-    def generate(cls, fmt: str = "json") -> str:
+    def generate(cls, fmt: str = "json") -> GeneratedConfig:
         """Generate an example configuration based on the template.
 
         The example is generated using default values for basic types. For instance,
@@ -228,22 +345,28 @@ class Template:
         the generation is done recursively.
 
         Args:
-            fmt (str): Format of the output. Either "json" or "yaml" (or "yml").
-                       Defaults to "json".
+            fmt (str): Format of the output. Supported values are "json", "yaml" (or "yml"),
+                       "toml", and "ini". Defaults to "json".
 
         Returns:
-            str: A string representing the example configuration.
+            GeneratedConfig: An object containing the generated configuration and a .save() method.
 
         Raises:
             ValueError: If the specified format is unsupported.
         """
         example_dict = cls._generate_example_dict()
-        if fmt.lower() == "json":
-            return json.dumps(example_dict, indent=4)
-        elif fmt.lower() in ("yaml", "yml"):
-            return yaml.dump(example_dict, default_flow_style=False)
+        fmt_lower = fmt.lower()
+        if fmt_lower == "json":
+            content = json.dumps(example_dict, indent=4)
+        elif fmt_lower in ("yaml", "yml"):
+            content = yaml.dump(example_dict, default_flow_style=False)
+        elif fmt_lower == "toml":
+            content = toml.dumps(example_dict)
+        elif fmt_lower == "ini":
+            content = _dict_to_ini(example_dict)
         else:
-            raise ValueError("Unsupported format. Use 'json' or 'yaml'.")
+            raise ValueError("Unsupported format. Use 'json', 'yaml', 'toml', or 'ini'.")
+        return GeneratedConfig(content, fmt_lower)
 
     @classmethod
     def _generate_example_dict(cls) -> dict:

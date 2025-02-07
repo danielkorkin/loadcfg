@@ -5,4 +5,5 @@ sphinx-copybutton
 
 # Package requirements
 PyYAML>=5.1
+toml>=0.10.2
 -e .
