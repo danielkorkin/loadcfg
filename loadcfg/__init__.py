@@ -182,7 +182,9 @@ def LoadIni(file_path: str) -> Config:
         configparser.Error: If the file is not a valid INI file.
     """
     parser = configparser.ConfigParser()
-    parser.read(file_path, encoding="utf-8")
+    files_read = parser.read(file_path, encoding="utf-8")
+    if not files_read:
+        raise FileNotFoundError(f"{file_path} does not exist")
     data = {}
     # Process each section into a nested dictionary.
     for section in parser.sections():

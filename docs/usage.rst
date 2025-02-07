@@ -1,7 +1,7 @@
 Usage Example
 =============
 
-This guide demonstrates how to use **loadcfg** to load, validate, and generate configuration files.
+This guide demonstrates how to use **loadcfg** to load, validate, and generate configuration files in various formats.
 
 Installation
 ------------
@@ -23,7 +23,6 @@ Load a JSON configuration file using:
 
     from loadcfg import LoadJson
 
-    # Load configuration from a JSON file
     config = LoadJson("config.json")
     print(config.name)          # Access values using dot-notation
     print(config.info.age)
@@ -61,7 +60,7 @@ Load an INI configuration file using:
     from loadcfg import LoadIni
 
     config = LoadIni("config.ini")
-    # Values in INI files are stored as strings.
+    # Note: Values in INI files are stored as strings.
     print(config.name)
     print(config.value)
 
