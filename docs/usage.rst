@@ -15,6 +15,8 @@ Install **loadcfg** from PyPI with:
 Loading a Configuration File
 ----------------------------
 
+### JSON
+
 Load a JSON configuration file using:
 
 .. code-block:: python
@@ -26,7 +28,9 @@ Load a JSON configuration file using:
     print(config.name)          # Access values using dot-notation
     print(config.info.age)
 
-You can similarly load a YAML file:
+### YAML
+
+Load a YAML configuration file using:
 
 .. code-block:: python
 
@@ -34,6 +38,32 @@ You can similarly load a YAML file:
 
     config = LoadYaml("config.yaml")
     print(config.name)
+    print(config.value)
+
+### TOML
+
+Load a TOML configuration file using:
+
+.. code-block:: python
+
+    from loadcfg import LoadToml
+
+    config = LoadToml("config.toml")
+    print(config.name)
+    print(config.value)
+
+### INI
+
+Load an INI configuration file using:
+
+.. code-block:: python
+
+    from loadcfg import LoadIni
+
+    config = LoadIni("config.ini")
+    # Values in INI files are stored as strings.
+    print(config.name)
+    print(config.value)
 
 Defining and Validating a Configuration Template
 -------------------------------------------------
@@ -59,7 +89,7 @@ Validate a configuration against the template:
     except ConfigValidationError as err:
         print("Configuration error:", err)
 
-Alternatively, you can invoke validation directly on the configuration object:
+Alternatively, invoke validation directly on the configuration object:
 
 .. code-block:: python
 
@@ -68,15 +98,25 @@ Alternatively, you can invoke validation directly on the configuration object:
 Generating Example Configurations
 -----------------------------------
 
-Generate example configuration files in JSON or YAML formats:
+Generate example configuration files in various formats:
 
 .. code-block:: python
 
+    # Generate JSON
     example_json = ProgramConfig.generate(fmt="json")
     print(example_json)
 
+    # Generate YAML
     example_yaml = ProgramConfig.generate(fmt="yaml")
     print(example_yaml)
+
+    # Generate TOML
+    example_toml = ProgramConfig.generate(fmt="toml")
+    print(example_toml)
+
+    # Generate INI
+    example_ini = ProgramConfig.generate(fmt="ini")
+    print(example_ini)
 
 Testing and Contributing
 ------------------------
@@ -96,4 +136,3 @@ Documentation and Code Coverage
 
 - Full documentation is available at: https://loadcfg.readthedocs.io
 - Code coverage details can be found at: https://app.codecov.io/gh/danielkorkin/loadcfg
-
