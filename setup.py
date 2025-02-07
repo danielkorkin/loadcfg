@@ -29,6 +29,7 @@ setup(
     packages=find_packages(),  # Automatically find packages in the directory.
     install_requires=[
         "PyYAML>=5.1",  # Required for YAML file support.
+        "toml>=0.10.2",
     ],
     extras_require={
         "dev": [
