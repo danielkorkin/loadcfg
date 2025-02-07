@@ -2,3 +2,6 @@ sphinx
 sphinx-rtd-theme
 sphinx-autodoc-typehints
 sphinx-copybutton
+
+# Package requirements
+PyYAML>=5.1
