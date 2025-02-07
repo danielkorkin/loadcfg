@@ -22,6 +22,7 @@ __all__ = [
     "LoadIni",
     "Template",
     "ConfigValidationError",
+    "GeneratedConfig",
 ]
 
 
@@ -236,6 +237,39 @@ def _dict_to_ini(data: dict) -> str:
         return stream.getvalue()
 
 
+class GeneratedConfig:
+    """Wrapper for generated configuration content that adds a .save() method.
+
+    Attributes:
+        content (str): The generated configuration string.
+        fmt (str): The format of the configuration ('json', 'yaml', 'toml', or 'ini').
+    """
+
+    def __init__(self, content: str, fmt: str):
+        self.content = content
+        self.fmt = fmt.lower()
+
+    def __str__(self):
+        return self.content
+
+    def save(self, filename: str = None) -> str:
+        """Save the generated configuration to a file.
+
+        If no filename is provided, a default filename of `config.<fmt>` is used.
+
+        Args:
+            filename (str, optional): The file name to save the configuration. Defaults to None.
+
+        Returns:
+            str: The filename where the configuration was saved.
+        """
+        if filename is None:
+            filename = f"config.{self.fmt}"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(self.content)
+        return filename
+
+
 class Template:
     """Base class for configuration templates.
 
@@ -251,9 +285,10 @@ class Template:
         config = LoadYaml("config.yaml")
         ProgramConfig.validate(config)
 
-        # Generate an example configuration (JSON format by default):
+        # Generate an example configuration (JSON format by default) and save it:
         example_config = ProgramConfig.generate(fmt="json")
-        print(example_config)
+        print(example_config)             # Prints the configuration as a string.
+        example_config.save("test.json")   # Saves to test.json (or default "config.json").
     """
 
     def __init_subclass__(cls):
@@ -302,7 +337,7 @@ class Template:
                     )
 
     @classmethod
-    def generate(cls, fmt: str = "json") -> str:
+    def generate(cls, fmt: str = "json") -> GeneratedConfig:
         """Generate an example configuration based on the template.
 
         The example is generated using default values for basic types. For instance,
@@ -314,7 +349,7 @@ class Template:
                        "toml", and "ini". Defaults to "json".
 
         Returns:
-            str: A string representing the example configuration.
+            GeneratedConfig: An object containing the generated configuration and a .save() method.
 
         Raises:
             ValueError: If the specified format is unsupported.
@@ -322,15 +357,16 @@ class Template:
         example_dict = cls._generate_example_dict()
         fmt_lower = fmt.lower()
         if fmt_lower == "json":
-            return json.dumps(example_dict, indent=4)
+            content = json.dumps(example_dict, indent=4)
         elif fmt_lower in ("yaml", "yml"):
-            return yaml.dump(example_dict, default_flow_style=False)
+            content = yaml.dump(example_dict, default_flow_style=False)
         elif fmt_lower == "toml":
-            return toml.dumps(example_dict)
+            content = toml.dumps(example_dict)
         elif fmt_lower == "ini":
-            return _dict_to_ini(example_dict)
+            content = _dict_to_ini(example_dict)
         else:
             raise ValueError("Unsupported format. Use 'json', 'yaml', 'toml', or 'ini'.")
+        return GeneratedConfig(content, fmt_lower)
 
     @classmethod
     def _generate_example_dict(cls) -> dict:
