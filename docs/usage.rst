@@ -15,7 +15,8 @@ Install **loadcfg** from PyPI with:
 Loading a Configuration File
 ----------------------------
 
-### JSON
+JSON
+~~~~
 
 Load a JSON configuration file using:
 
@@ -27,7 +28,8 @@ Load a JSON configuration file using:
     print(config.name)          # Access values using dot-notation
     print(config.info.age)
 
-### YAML
+YAML
+~~~~
 
 Load a YAML configuration file using:
 
@@ -39,7 +41,8 @@ Load a YAML configuration file using:
     print(config.name)
     print(config.value)
 
-### TOML
+TOML
+~~~~
 
 Load a TOML configuration file using:
 
@@ -51,7 +54,8 @@ Load a TOML configuration file using:
     print(config.name)
     print(config.value)
 
-### INI
+INI
+~~~
 
 Load an INI configuration file using:
 
