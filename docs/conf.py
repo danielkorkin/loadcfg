@@ -34,10 +34,6 @@ extensions = [
 # Automatically generate autosummary pages.
 autosummary_generate = True
 
-# Napoleon settings for Google style docstrings.
-napoleon_google_docstring = True
-napoleon_numpy_docstring = False
-
 # Intersphinx mapping to the Python standard library documentation.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
