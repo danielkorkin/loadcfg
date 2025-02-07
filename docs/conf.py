@@ -31,9 +31,6 @@ extensions = [
     "sphinx_autodoc_typehints",  # Automatically include type hints in documentation.
 ]
 
-# Automatically generate autosummary pages.
-autosummary_generate = True
-
 # Intersphinx mapping to the Python standard library documentation.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
