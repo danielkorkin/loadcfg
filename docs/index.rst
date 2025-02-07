@@ -18,7 +18,7 @@ Welcome to the **loadcfg** documentation!
    :target: https://pypi.org/project/loadcfg
    :alt: PyPI Version
 
-.. image:: https://img.shields.io/codecov/c/github/danielkorkin/loadcfg
+.. image:: https://img.shields.io/codecov/c/gh/danielkorkin/loadcfg
    :target: https://app.codecov.io/gh/danielkorkin/loadcfg/
    :alt: Codecov
 

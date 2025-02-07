@@ -2,7 +2,7 @@
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/danielkorkin/loadcfg/test.yml?label=testing)
 ![PyPI - Version](https://img.shields.io/pypi/v/loadcfg)
-![Codecov](https://img.shields.io/codecov/c/github/danielkorkin/loadcfg)
+![Codecov](https://img.shields.io/codecov/c/gh/danielkorkin/loadcfg)
 ![Read the Docs](https://img.shields.io/readthedocs/loadcfg)
 ![PyPI - License](https://img.shields.io/pypi/l/loadcfg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/loadcfg)
