@@ -20,6 +20,12 @@ setup(
     author="Daniel Korkin",
     author_email="daniel.d.korkin@gmail.com",
     url="https://github.com/danielkorkin/loadcfg",
+    project_urls={
+        "Documentation": "https://loadcfg.readthedocs.io",
+        "Code Coverage": "https://app.codecov.io/gh/danielkorkin/loadcfg/",
+        "PyPI": "https://pypi.org/project/loadcfg",
+        "Source": "https://github.com/danielkorkin/loadcfg",
+    },
     packages=find_packages(),  # Automatically find packages in the directory.
     install_requires=[
         "PyYAML>=5.1",  # Required for YAML file support.
@@ -47,5 +53,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    license="MIT",
     python_requires=">=3.6",
 )
