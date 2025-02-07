@@ -94,6 +94,6 @@ Contributions are encouraged and appreciated. Please see the GitHub repository f
 Documentation and Code Coverage
 -------------------------------
 
-- Full documentation is available at: [https://loadcfg.readthedocs.io](https://loadcfg.readthedocs.io)
-- Code coverage details can be found at: [https://app.codecov.io/gh/danielkorkin/loadcfg/](https://app.codecov.io/gh/danielkorkin/loadcfg/)
+- Full documentation is available at: https://loadcfg.readthedocs.io
+- Code coverage details can be found at: https://app.codecov.io/gh/danielkorkin/loadcfg
 
