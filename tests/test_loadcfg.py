@@ -40,6 +40,13 @@ def test_config_list_conversion():
     assert config.list[0].key == "value"
 
 
+def test_config_invalid_data():
+    """Test that initializing a Config with a non-dictionary raises ValueError."""
+    with pytest.raises(ValueError) as exc_info:
+        Config("not a dict")
+    assert "Config data must be a dictionary" in str(exc_info.value)
+
+
 # === Tests for LoadJson ===
 
 
@@ -87,7 +94,7 @@ def test_load_yaml_invalid_structure(tmp_path):
     raises ValueError.
     """
     file_path = tmp_path / "bad.yaml"
-    # Here we write a YAML string that represents a list (not a dict)
+    # Write a YAML string that represents a list (not a dict)
     file_path.write_text(yaml.dump([1, 2, 3]), encoding="utf-8")
     with pytest.raises(ValueError):
         _ = LoadYaml(str(file_path))
@@ -96,8 +103,6 @@ def test_load_yaml_invalid_structure(tmp_path):
 def test_load_yaml_invalid_yaml(tmp_path):
     """
     Test that a YAML file with invalid YAML syntax raises a yaml.YAMLError.
-    Note: Some strings may be parsed without error, so we use a deliberately
-    invalid YAML string.
     """
     file_path = tmp_path / "invalid.yaml"
     file_path.write_text("key: [unbalanced brackets", encoding="utf-8")
@@ -228,3 +233,44 @@ def test_template_with_attributes():
     data_generated = json.loads(generated)
     assert data_generated["name"] == "example"  # From _get_example_value for str.
     assert data_generated["age"] == 0  # From _get_example_value for int.
+
+
+# === Additional tests to cover _get_example_value branches ===
+
+
+# Define a dummy type to represent an unknown type.
+class UnknownType:
+    pass
+
+
+class AllTypesTemplate(Template):
+    int_field: int
+    float_field: float
+    str_field: str
+    bool_field: bool
+    list_field: list
+    dict_field: dict
+    unknown_field: UnknownType
+
+
+def test_all_types_template_generate():
+    """
+    Test that a template with fields of various types generates the expected default values.
+    This covers:
+      - int: returns 0
+      - float: returns 0.0
+      - str: returns "example"
+      - bool: returns False
+      - list: returns []
+      - dict: returns {}
+      - unknown types: returns None
+    """
+    generated = AllTypesTemplate.generate(fmt="json")
+    data = json.loads(generated)
+    assert data["int_field"] == 0
+    assert data["float_field"] == 0.0
+    assert data["str_field"] == "example"
+    assert data["bool_field"] is False
+    assert data["list_field"] == []
+    assert data["dict_field"] == {}
+    assert data["unknown_field"] is None
