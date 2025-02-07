@@ -1,9 +1,12 @@
+import configparser
 import json
 
 import pytest
+import toml
 import yaml
 
-from loadcfg import Config, ConfigValidationError, LoadJson, LoadYaml, Template
+from loadcfg import (Config, ConfigValidationError, LoadIni, LoadJson,
+                     LoadToml, LoadYaml, Template)
 
 # === Tests for Config class ===
 
@@ -110,6 +113,67 @@ def test_load_yaml_invalid_yaml(tmp_path):
         _ = LoadYaml(str(file_path))
 
 
+# === New tests for TOML ===
+
+
+def test_load_toml_valid(tmp_path):
+    """Test loading a valid TOML configuration file."""
+    data = {"name": "TomlTest", "value": 789}
+    # toml.dumps expects a dictionary with tables at the top level.
+    file_path = tmp_path / "config.toml"
+    file_path.write_text(toml.dumps(data), encoding="utf-8")
+    config = LoadToml(str(file_path))
+    assert config.name == "TomlTest"
+    assert config.value == 789
+
+
+def test_load_toml_invalid_structure(tmp_path):
+    """Test that a TOML file with a non-dictionary top-level structure raises ValueError."""
+    # Write a TOML file with a top-level list (not supported)
+    file_path = tmp_path / "bad.toml"
+    file_path.write_text("[[items]]\nvalue = 1", encoding="utf-8")
+    with pytest.raises(ValueError):
+        _ = LoadToml(str(file_path))
+
+
+def test_load_toml_file_not_found(tmp_path):
+    """Test that a non-existent TOML file raises FileNotFoundError."""
+    file_path = tmp_path / "nonexistent.toml"
+    with pytest.raises(FileNotFoundError):
+        _ = LoadToml(str(file_path))
+
+
+# === New tests for INI ===
+
+
+def test_load_ini_valid(tmp_path):
+    """Test loading a valid INI configuration file."""
+    ini_content = """
+[DEFAULT]
+name = IniTest
+value = 321
+
+[section]
+key = subvalue
+"""
+    file_path = tmp_path / "config.ini"
+    file_path.write_text(ini_content, encoding="utf-8")
+    config = LoadIni(str(file_path))
+    # DEFAULT values are merged into the top-level dict.
+    assert config.name == "IniTest"
+    assert config.value == "321"  # INI files store values as strings.
+    # Verify that section data was parsed:
+    assert "section" in config
+    assert config.section["key"] == "subvalue"
+
+
+def test_load_ini_file_not_found(tmp_path):
+    """Test that a non-existent INI file raises FileNotFoundError."""
+    file_path = tmp_path / "nonexistent.ini"
+    with pytest.raises(FileNotFoundError):
+        _ = LoadIni(str(file_path))
+
+
 # === Tests for Template functionality ===
 
 
@@ -192,6 +256,26 @@ def test_template_generate_yaml():
     assert "age" in data
     assert data["name"] == "example"
     assert data["age"] == 0
+
+
+def test_template_generate_toml():
+    """Test that generate(fmt='toml') produces valid TOML with default example values."""
+    generated = DummyTemplate.generate(fmt="toml")
+    # Parse the generated TOML to verify it's valid.
+    data = toml.loads(generated)
+    assert "name" in data
+    assert "age" in data
+    assert data["name"] == "example"
+    assert data["age"] == 0
+
+
+def test_template_generate_ini():
+    """Test that generate(fmt='ini') produces valid INI with default example values."""
+    generated = DummyTemplate.generate(fmt="ini")
+    parser = configparser.ConfigParser()
+    parser.read_string(generated)
+    # Check that the DEFAULT section includes our values.
+    assert "example" in parser["DEFAULT"].values() or "0" in parser["DEFAULT"].values()
 
 
 def test_template_generate_invalid_format():
