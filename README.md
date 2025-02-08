@@ -7,6 +7,7 @@
 ![PyPI - License](https://img.shields.io/pypi/l/loadcfg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/loadcfg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/danielkorkin/loadcfg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/loadcfg)
 
 **loadcfg** is a lightweight Python library that makes it easy to load configuration files in JSON and YAML formats with convenient dot-access to configuration values.
 
